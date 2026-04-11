@@ -3,178 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multimarket Ahgusto - Terminal de Ventas</title>
+    <title>Multimarket Ahgusto - Terminal de Ventas Trujillo</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --sidebar-width: 260px; --primary: #1a3c5a; --accent: #d4a373; }
-        body { font-family: 'Poppins', sans-serif; margin: 0; display: flex; background-color: #fdfaf5; color: #333; overflow-x: hidden; }
+        :root { --sidebar-width: 260px; --crema: #fdfaf5; --azul: #00468b; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; display: flex; background-color: var(--crema); color: #333; }
 
-        /* Sidebar */
-        nav { width: var(--sidebar-width); height: 100vh; background: white; border-right: 1px solid #eee; position: fixed; padding: 20px 0; z-index: 10; overflow-y: auto; }
+        /* BARRA LATERAL (RECUPERADA) */
+        nav {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #eee;
+            position: fixed;
+            padding: 20px 0;
+            z-index: 10;
+        }
+
+        .logo-nav { width: 40px; margin: 0 auto 20px; display: block; }
         nav ul { list-style: none; padding: 0; margin: 0; }
-        nav ul li { padding: 12px 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; border-left: 4px solid transparent; }
-        nav ul li:hover, nav ul li.active { background: #fff8ef; border-left: 4px solid var(--accent); color: var(--accent); }
+        nav ul li {
+            padding: 15px 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+        nav ul li:hover, nav ul li.active { background: #fff8ef; border-left: 4px solid #d4a373; color: #d4a373; }
 
-        /* Contenedor Principal */
-        .container { margin-left: var(--sidebar-width); width: 100%; padding: 20px 40px; box-sizing: border-box; }
+        /* CONTENIDO PRINCIPAL */
+        .main-content { margin-left: var(--sidebar-width); width: 100%; padding: 40px; box-sizing: border-box; }
 
-        /* Buscador / Escáner */
-        .search-container { background: white; padding: 15px; border-radius: 12px; margin-bottom: 30px; display: flex; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        #barcode-input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 1rem; outline: none; transition: 0.3s; }
-        #barcode-input:focus { border-color: var(--primary); }
+        /* EL BANNER ORIGINAL (RECUPERADO) */
+        .hero-banner {
+            background: repeating-linear-gradient(90deg, #00468b, #00468b 20px, #ffffff 20px, #ffffff 40px);
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 50px;
+            border-radius: 4px;
+        }
 
-        /* Grid de Productos */
-        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; border: 1px solid transparent; }
-        .card:hover { border-color: var(--accent); }
+        .logo-amarillo-grande {
+            background: #f1c40f; /* Amarillo del logo original */
+            padding: 25px;
+            border-radius: 50%;
+            border: 4px solid #d35400; /* Naranja del logo original */
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* BUSCADOR (PARA ESCÁNER) */
+        .search-container { max-width: 600px; margin: 0 auto 40px; }
+        #barcode-input {
+            width: 100%;
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: 2px solid #ddd;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            outline: none;
+        }
+        #barcode-input:focus { border-color: #d4a373; }
+
+        /* MODO INICIO (Los 6 bloques originales) */
+        #bloques-inicio {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .bloque-cat {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bloque-cat h2 { font-size: 1rem; text-transform: uppercase; margin: 15px 0; }
+        .bloque-cat p { font-size: 0.8rem; color: #777; margin-bottom: 20px; }
+        .btn-ver-mas { background: #a8dadc; color: #1d3557; border: none; padding: 10px 25px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; cursor: pointer; text-transform: uppercase; }
+
+        /* MODO TIENDA (Los productos reales) */
+        #vista-productos { display: none; }
+        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
         
-        .precio-tag { background: var(--primary); color: white; padding: 4px 12px; border-radius: 5px; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; }
-        
-        /* Imagen con Icono de Respaldo */
-        .img-box { width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; background: #fdfdfd; border-radius: 10px; margin: 10px 0; position: relative; }
-        .img-producto { max-width: 100%; max-height: 100%; object-fit: contain; z-index: 2; }
-        .icon-fallback { position: absolute; width: 60px; opacity: 0.2; z-index: 1; }
+        /* Tarjetas estilo Trujillo POS */
+        .card { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; }
+        .precio-tag { background: #1a3c5a; color: white; padding: 4px 12px; border-radius: 5px; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; }
+        .icon-fallback { width: 80px; margin: 10px 0; opacity: 0.2; }
+        .card h3 { font-size: 0.8rem; height: 40px; overflow: hidden; margin: 10px 0; }
+        .btn-pago { background: #a8dadc; color: #1d3557; border: none; padding: 8px 15px; border-radius: 5px; font-weight: 700; width: 100%; margin-top: auto; cursor: pointer; font-size: 0.7rem;}
 
-        .stock-tag { padding: 3px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; margin-bottom: 8px; }
-        .con-stock { background: #e8f5e9; color: #2e7d32; }
-        .sin-stock { background: #ffebee; color: #c62828; }
-
-        h3 { font-size: 0.75rem; color: #555; height: 35px; overflow: hidden; margin: 10px 0; line-height: 1.2; }
-        .btn-accion { background: #e0f2f1; color: #00796b; border: none; padding: 8px; border-radius: 6px; font-weight: 700; font-size: 0.7rem; cursor: pointer; width: 100%; }
-
-        /* Mensaje Flotante Escáner */
-        .scan-msg { font-size: 0.8rem; color: #888; margin-top: 5px; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div style="text-align: center; margin-bottom: 20px;">
-            <strong style="color: var(--primary);">AHGUSTO POS</strong>
-        </div>
-        <ul id="menu-categorias">
-            <li class="active" onclick="location.reload()">🔄 Actualizar</li>
+        <img src="logo.png" class="logo-nav" onerror="this.src='https://via.placeholder.com/40'">
+        <ul>
+            <li class="active" onclick="location.reload()">Inicio</li>
+            <li>Productos</li>
+            <li>Ofertas</li>
+            <li>Sobre Nosotros</li>
+            <li>Contacto</li>
         </ul>
     </nav>
 
-    <div class="container">
-        <div class="search-container">
-            <div style="flex-grow: 1;">
-                <input type="text" id="barcode-input" placeholder="Escanea un código de barras o busca por nombre..." autocomplete="off">
-                <div class="scan-msg">💡 Listo para escanear...</div>
+    <div class="main-content">
+        <div class="hero-banner">
+            <div class="logo-amarillo-grande">
+                <h2 style="margin:0; color:#d35400; font-size: 1.2rem;">Ah Gusto</h2>
+                <small style="color:#333; font-weight: 700;">MULTIMARKET</small>
             </div>
         </div>
 
-        <div id="contenedor-tienda">
+        <div class="search-container">
+            <input type="text" id="barcode-input" placeholder="🔍 Escanea o busca un producto..." autocomplete="off">
+        </div>
+
+        <div id="bloques-inicio">
+            <div class="bloque-cat">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081840.png" width="80">
+                <h2>Abarrotes y Frescos</h2>
+                <p>Arroz, azúcar, aceites y todo para tu cocina.</p>
+                <button class="btn-ver-mas" onclick="filtrarPorCat('Abarrotes')">Ver Más</button>
             </div>
+            <div class="bloque-cat">
+                <img src="https://cdn-icons-png.flaticon.com/512/2553/2553642.png" width="80">
+                <h2>Lácteos y Bebidas</h2>
+                <p>Leche, quesos, yogures, gaseosas y jugos.</p>
+                <button class="btn-ver-mas" onclick="filtrarPorCat('Bebidas')">Ver Más</button>
+            </div>
+            <div class="bloque-cat">
+                <img src="https://cdn-icons-png.flaticon.com/512/962/962770.png" width="80">
+                <h2>Hogar y Limpieza</h2>
+                <p>Detergentes, desinfectantes y cuidado del hogar.</p>
+                <button class="btn-ver-mas" onclick="filtrarPorCat('Limpieza')">Ver Más</button>
+            </div>
+            </div>
+
+        <div id="vista-productos">
+            <h2 id="titulo-seccion" style="font-size: 1.1rem; border-bottom: 2px solid #eee; padding-bottom: 10px; text-transform: uppercase;">Abarrotes</h2>
+            <div class="grid-productos" id="grid-productos-real">
+                </div>
+        </div>
     </div>
 
     <script>
         let inventario = [];
-        const inputBusqueda = document.getElementById('barcode-input');
 
         async function cargarDatos() {
             try {
                 const res = await fetch('datosproductos.json');
                 inventario = await res.json();
-                renderizarTienda(inventario);
-            } catch (e) { console.error("Error cargando JSON", e); }
+                
+                // Mantiene el foco en el buscador para el escáner
+                document.getElementById('barcode-input').focus();
+            } catch (e) { console.error("Error", e); }
         }
 
-        function renderizarTienda(datos) {
-            const tienda = document.getElementById('contenedor-tienda');
-            const menu = document.getElementById('menu-categorias');
-            tienda.innerHTML = "";
-            
-            const grupos = {};
-            datos.forEach(p => {
-                const c = p.Categoría || p.CATEGORIA || "Varios";
-                if (!grupos[c]) grupos[c] = [];
-                grupos[c].push(p);
-            });
-
-            for (const cat in grupos) {
-                // Agregar al menú si es la carga inicial
-                if (menu.children.length < 5) {
-                    const li = document.createElement('li');
-                    li.textContent = cat;
-                    li.onclick = () => filtrarCategoria(cat);
-                    menu.appendChild(li);
-                }
-
-                const seccion = document.createElement('div');
-                seccion.className = 'categoria-bloque';
-                seccion.id = `cat-${cat.replace(/\s/g, '')}`;
-                seccion.innerHTML = `<h2 style="font-size: 1.1rem; border-bottom: 2px solid #eee; padding-bottom: 10px;">${cat}</h2>`;
-                
-                const grid = document.createElement('div');
-                grid.className = 'grid-productos';
-
-                grupos[cat].forEach(p => {
-                    const nombre = p.NOMBRE || p.Nombre || "Producto sin nombre";
-                    const precio = p["P.Venta"] || p.P_Venta || "0.00";
-                    const stock = parseInt(p.Stock) || 0;
-                    const cod = p.Código || p.CODIGO || "";
-                    
-                    // Lógica de Imagen: Si el código es largo (EAN13), buscamos en OpenFoodFacts. 
-                    // Si falla o no hay, muestra el icono de carrito que tienes en tu diseño.
-                    let imgFinal = `https://world.openfoodfacts.org/images/products/${cod}/front_es.400.jpg`;
-                    const iconoRespaldo = "https://cdn-icons-png.flaticon.com/512/3081/3081840.png";
-
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.dataset.codigo = cod; // Guardamos el código para el escáner
-                    card.innerHTML = `
-                        <div class="precio-tag">S/ ${precio}</div>
-                        <div class="img-box">
-                            <img src="${iconoRespaldo}" class="icon-fallback">
-                            <img src="${imgFinal}" class="img-producto" onerror="this.style.display='none'">
-                        </div>
-                        <div class="stock-tag ${stock > 0 ? 'con-stock' : 'sin-stock'}">
-                            ${stock > 0 ? 'Stock: '+stock : 'Sin Stock'}
-                        </div>
-                        <h3>${nombre}</h3>
-                        <button class="btn-accion">VER DETALLES</button>
-                    `;
-                    grid.appendChild(card);
-                });
-                seccion.appendChild(grid);
-                tienda.appendChild(seccion);
-            }
-        }
-
-        // LÓGICA DEL ESCÁNER Y BÚSQUEDA
-        inputBusqueda.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const cards = document.querySelectorAll('.card');
-            
-            cards.forEach(card => {
-                const nombre = card.querySelector('h3').innerText.toLowerCase();
-                const codigo = card.dataset.codigo.toString();
-                
-                // Si el escáner detecta el código exacto o el nombre coincide
-                if (nombre.includes(term) || codigo === term) {
-                    card.style.display = "flex";
-                    if (codigo === term) {
-                        card.style.borderColor = "var(--accent)";
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                } else {
-                    card.style.display = "none";
-                }
-            });
-
-            // Si se borra la búsqueda, mostrar todos
-            if (term === "") {
-                cards.forEach(c => c.style.display = "flex");
+        // LÓGICA DEL ESCÁNER (Detecta el Enter de la pistola)
+        document.getElementById('barcode-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const code = e.target.value.trim();
+                activarModoTienda(code); // Busca el producto y oculta los bloques
             }
         });
 
-        // Auto-foco en el buscador para que el escáner siempre funcione
-        window.addEventListener('keydown', () => {
-            if (document.activeElement !== inputBusqueda) {
-                inputBusqueda.focus();
+        function filtrarPorCat(cat) {
+            document.getElementById('barcode-input').value = cat;
+            activarModoTienda(cat); // Busca la categoría y oculta los bloques
+        }
+
+        function activarModoTienda(termino) {
+            document.getElementById('bloques-inicio').style.display = 'none';
+            document.getElementById('vista-productos').style.display = 'block';
+            document.getElementById('titulo-seccion').innerText = termino;
+            
+            const grid = document.getElementById('grid-productos-real');
+            grid.innerHTML = ""; // Limpiar
+
+            const filtrados = inventario.filter(p => {
+                const n = (p.NOMBRE || p.Nombre || "").toLowerCase();
+                const c = (p.Código || p.CODIGO || "").toString();
+                const cat = (p.Categoría || p.CATEGORIA || "").toLowerCase();
+                return n.includes(termino.toLowerCase()) || c === termino || cat.includes(termino.toLowerCase());
+            });
+
+            if (filtrados.length === 0) {
+                grid.innerHTML = `<p style="padding: 20px; color: #888; text-align:center; width:100%;">No se encontraron productos con: ${termino}</p>`;
+                return;
             }
+
+            filtrados.forEach(p => {
+                const n = p.NOMBRE || p.Nombre || "Producto";
+                const precio = p["P.Venta"] || p.P_Venta || "0.00";
+                const cod = p.Código || p.CODIGO || "";
+                
+                // ICONO DE CARRITO DE TU FOTO COMO FOTO
+                const iconoCarrito = "https://cdn-icons-png.flaticon.com/512/3081/3081840.png";
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="precio-tag">S/ ${parseFloat(precio).toFixed(2)}</div>
+                    <img src="${iconoCarrito}" class="icon-fallback" alt="carrito">
+                    <h3>${n}</h3>
+                    <button class="btn-pago">VER DETALLES</button>
+                `;
+                grid.appendChild(card);
+            });
+            
+            // Limpiar buscador para el siguiente escaneo
+            document.getElementById('barcode-input').value = "";
+            document.getElementById('barcode-input').focus();
+        }
+
+        // Recuperar foco al hacer clic en cualquier lado
+        document.addEventListener('click', () => {
+            document.getElementById('barcode-input').focus();
         });
 
         cargarDatos();
