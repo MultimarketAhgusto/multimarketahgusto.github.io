@@ -29,13 +29,13 @@
         .categoria-titulo { font-size: 1.2rem; font-weight: 700; text-transform: uppercase; margin-bottom: 25px; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px; }
 
         .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; min-height: 380px; }
+        .card { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; min-height: 350px; }
         
         .precio-tag { background: #1a3c5a; color: white; padding: 4px 12px; border-radius: 5px; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; }
         
-        /* Contenedor de imagen para evitar que la tarjeta salte */
-        .img-wrapper { width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; margin: 10px 0; background: #f9f9f9; border-radius: 10px; overflow: hidden; }
-        .img-producto { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s; }
+        /* Contenedor de Imagen Fijo */
+        .img-wrapper { width: 120px; height: 120px; margin: 10px 0; background: #f9f9f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .img-producto { max-width: 100%; max-height: 100%; object-fit: contain; }
 
         .stock-tag { padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; margin-bottom: 10px; width: 80%; }
         .con-stock { background: #ffede0; color: #e67e22; }
@@ -52,7 +52,7 @@
     <nav>
         <img src="logo.png" class="logo-nav" onerror="this.style.display='none'">
         <ul id="menu-categorias">
-            <li class="active" onclick="mostrarInicio()">🏠 Inicio</li>
+            <li class="active" id="btn-inicio" onclick="mostrarInicio()">🏠 Inicio</li>
         </ul>
     </nav>
 
@@ -65,8 +65,8 @@
         </div>
 
         <div id="bienvenida">
-            <h2>Bienvenido a Multimarket Ahgusto</h2>
-            <p>Selecciona una categoría para ver los productos.</p>
+            <h2>Panel de Control Ahgusto</h2>
+            <p>Selecciona una categoría para gestionar tus productos.</p>
         </div>
 
         <div id="contenedor-tienda"></div>
@@ -108,8 +108,17 @@
                         const stock = parseInt(p.Stock) || 0;
                         const stockClase = stock > 0 ? 'con-stock' : 'sin-stock';
                         const nombreProd = p.NOMBRE || p.Nombre || "Producto";
+                        const barras = p.Código || p.CODIGO || "";
+                        
+                        // PRECIO
                         const precioRaw = p["P.Venta"] || p.P_Venta || p.precio || "0.00";
                         const precioFormateado = precioRaw.toString().includes('S/') ? precioRaw : `S/ ${precioRaw}`;
+
+                        // IMAGEN POR API DE CÓDIGO DE BARRAS (Mucho más estable que Google)
+                        // Si no hay barras, usa un icono de caja de mercado
+                        const urlImg = barras.length > 5 
+                            ? `https://world.openfoodfacts.org/images/products/${barras}/front_es.400.jpg` 
+                            : `https://cdn-icons-png.flaticon.com/512/3081/3081840.png`;
 
                         const card = document.createElement('div');
                         card.className = 'card';
@@ -117,14 +126,13 @@
                             <div class="precio-tag">${precioFormateado}</div>
                             <div class="img-wrapper">
                                 <img class="img-producto" 
-                                     data-src="https://loremflickr.com/320/320/${encodeURIComponent(nombreProd + ' product')}" 
-                                     src="https://via.placeholder.com/150?text=Cargando..."
-                                     alt="${nombreProd}"
-                                     onerror="this.src='https://via.placeholder.com/150?text=Sin+Foto'">
+                                     src="${urlImg}" 
+                                     onerror="this.src='https://cdn-icons-png.flaticon.com/512/3081/3081840.png'"
+                                     alt="producto">
                             </div>
                             <div class="stock-tag ${stockClase}">${stock > 0 ? 'Stock: '+stock : 'Sin stock'}</div>
                             <h3>${nombreProd}</h3>
-                            <button class="btn-pago">AGREGAR</button>
+                            <button class="btn-pago">VER DETALLES</button>
                         `;
                         grid.appendChild(card);
                     });
@@ -134,24 +142,14 @@
             } catch (err) { console.error("Error:", err); }
         }
 
-        function filtrarPorCategoria(categoriaSeleccionada, elementoMenu) {
+        function filtrarPorCategoria(cat, elemento) {
             document.getElementById('bienvenida').style.display = 'none';
             document.querySelectorAll('.categoria-bloque').forEach(b => b.style.display = 'none');
             document.querySelectorAll('nav ul li').forEach(i => i.classList.remove('active'));
-
-            const seccion = document.getElementById(`seccion-${categoriaSeleccionada}`);
-            if(seccion) {
-                seccion.style.display = 'block';
-                // Al mostrar la sección, cargamos sus imágenes reales
-                seccion.querySelectorAll('.img-producto').forEach(img => {
-                    if(img.getAttribute('data-src')) {
-                        img.src = img.getAttribute('data-src');
-                        img.removeAttribute('data-src');
-                    }
-                });
-            }
             
-            elementoMenu.classList.add('active');
+            const target = document.getElementById(`seccion-${cat}`);
+            if(target) target.style.display = 'block';
+            elemento.classList.add('active');
             window.scrollTo(0,0);
         }
 
@@ -159,7 +157,7 @@
             document.getElementById('bienvenida').style.display = 'block';
             document.querySelectorAll('.categoria-bloque').forEach(b => b.style.display = 'none');
             document.querySelectorAll('nav ul li').forEach(i => i.classList.remove('active'));
-            document.querySelectorAll('nav ul li')[0].classList.add('active');
+            document.getElementById('btn-inicio').classList.add('active');
         }
 
         cargarTienda();
