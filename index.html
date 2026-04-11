@@ -3,620 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ahgusto POS - Multimarket</title>
+    <title>Multimarket Ahgusto - POS Cloud</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --sidebar-width: 260px; --primary: #1a3c5a; --accent: #d4a373; --success: #2e7d32; --danger: #c62828; --light: #fdfaf5; }
-        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--light); color: #333; overflow-x: hidden; scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--light); color: #333; overflow-x: hidden; }
 
-        /* --- PORTADA DE BIENVENIDA --- */
-        #portada { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; background: white; z-index: 1000; position: fixed; width: 100%; transition: opacity 0.5s; }
+        /* --- PORTADA --- */
+        #portada { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; background: white; z-index: 1000; position: fixed; width: 100%; transition: 0.5s; }
         .logo-portada { width: 120px; margin-bottom: 20px; }
-        .info-portada { max-width: 500px; color: #666; font-size: 0.9rem; margin-bottom: 40px; }
-        .opciones-acceso { display: flex; gap: 20px; }
-        .btn-acceso { padding: 15px 30px; border-radius: 30px; border: none; cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s; }
+        .btn-acceso { padding: 15px 30px; border-radius: 30px; border: none; cursor: pointer; font-weight: 700; text-transform: uppercase; margin: 10px; transition: 0.3s; }
         .btn-acceso.cliente { background: var(--accent); color: white; }
         .btn-acceso.admin { background: var(--primary); color: white; }
-        .btn-acceso:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-        /* --- INTERFAZ COMÚN --- */
+        /* --- INTERFAZ --- */
         #interfaz-pos { display: none; }
-        
-        /* Sidebar */
-        nav { width: var(--sidebar-width); height: 100vh; background: white; border-right: 1px solid #eee; position: fixed; padding: 20px 0; z-index: 10; overflow-y: auto; }
-        .logo-sidebar { width: 60px; margin: 0 auto 30px; display: block; }
-        nav ul { list-style: none; padding: 0; margin: 0; }
-        nav ul li { padding: 12px 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-left: 4px solid transparent; color: #555; }
-        nav ul li:hover, nav ul li.active { background: #fff8ef; border-left: 4px solid var(--accent); color: var(--accent); }
-        .btn-admin-only { background: #ffebee; color: var(--danger) !important; font-weight: 700; display: none; margin-top: 30px; }
-        .btn-admin-only:hover { background: #ffcdd2; }
+        nav { width: var(--sidebar-width); height: 100vh; background: white; border-right: 1px solid #eee; position: fixed; padding: 20px 0; z-index: 10; }
+        nav ul { list-style: none; padding: 0; }
+        nav ul li { padding: 12px 30px; font-weight: 600; cursor: pointer; color: #555; border-left: 4px solid transparent; }
+        nav ul li.active { background: #fff8ef; border-left-color: var(--accent); color: var(--accent); }
 
-        /* Contenedor Principal */
-        .container { margin-left: var(--sidebar-width); width: 100%; padding: 20px 40px; box-sizing: border-box; }
+        .container { margin-left: var(--sidebar-width); padding: 20px 40px; }
 
-        /* Buscador / Escáner */
+        /* Buscador */
         .search-container { background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        #barcode-input { flex-grow: 1; padding: 12px 20px; border: 2px solid #eee; border-radius: 8px; font-size: 1rem; outline: none; }
-        #barcode-input:focus { border-color: var(--primary); }
-        .status-msg { font-size: 0.7rem; color: #999; }
-        .modos-container { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 5px 10px; border-radius: 15px; }
-        .modo-cliente { background: #e3f2fd; color: #1565c0; }
+        #barcode-input { flex-grow: 1; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 1rem; outline: none; }
+        .modos-container { font-size: 0.7rem; font-weight: 700; padding: 5px 10px; border-radius: 15px; }
         .modo-admin { background: #ffebee; color: var(--danger); }
+        .modo-cliente { background: #e3f2fd; color: #1565c0; }
 
         /* Grid de Productos */
-        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; border: 1px solid transparent; transition: 0.2s; position: relative; }
-        
-        .precio-tag { background: var(--primary); color: white; padding: 4px 12px; border-radius: 5px; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; }
-        
-        /* Imagen */
-        .img-box { width: 130px; height: 130px; display: flex; align-items: center; justify-content: center; background: #fdfdfd; border-radius: 10px; margin: 10px 0; position: relative; overflow: hidden; }
-        .img-producto { max-width: 100%; max-height: 100%; object-fit: contain; transition: 0.3s; z-index: 2; }
-        .icon-fallback { position: absolute; width: 65px; opacity: 0.2; z-index: 1; }
+        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; border: 2px solid transparent; }
+        .precio-tag { background: var(--primary); color: white; padding: 4px 10px; border-radius: 5px; font-weight: 700; margin-bottom: 10px; display: inline-block; }
+        .img-box { width: 100%; height: 130px; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
+        .img-producto { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .stock-tag { font-size: 0.75rem; font-weight: 700; margin-bottom: 10px; }
+        .con-stock { color: var(--success); }
+        .sin-stock { color: var(--danger); }
+        .btn-accion { width: 100%; padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; background: #e0f2f1; color: #00796b; }
 
-        .stock-tag { padding: 3px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; margin-bottom: 8px; }
-        .con-stock { background: #e8f5e9; color: var(--success); }
-        .sin-stock { background: #ffebee; color: var(--danger); }
-
-        h3 { font-size: 0.8rem; color: #555; height: 38px; overflow: hidden; margin: 10px 0; line-height: 1.2; text-transform: capitalize; }
-        .btn-accion { background: #e0f2f1; color: #00796b; border: none; padding: 8px; border-radius: 6px; font-weight: 700; font-size: 0.7rem; cursor: pointer; width: 100%; margin-top: auto; }
-
-        /* --- MODO ADMINISTRADOR - EDICIÓN --- */
-        .admin-controls { display: none; width: 100%; margin-top: 10px; flex-direction: column; gap: 8px; }
-        .admin-input { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.75rem; text-align: center; box-sizing: border-box; }
-        .btn-admin-save { background: var(--success); color: white; }
-        .btn-oferta { background: #fff3e0; color: #e65100; font-size: 0.65rem; border: 1px solid #ffe0b2; }
-        .btn-oferta.activa { background: #e65100; color: white; }
-
-        /* --- MODAL PARA AÑADIR/EDITAR (Estilo Casa Market) --- */
+        /* Modales y Toast */
         #modal-producto { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; box-sizing: border-box; }
-        .modal-form-group { margin-bottom: 15px; }
-        .modal-form-group label { display: block; font-size: 0.75rem; font-weight: 700; color: #777; margin-bottom: 5px; text-transform: uppercase; }
-        .modal-form-group input, .modal-form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; }
-        .modal-img-preview { width: 100%; height: 200px; background: #f9f9f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; border: 2px dashed #eee; }
-        .preview-img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .modal-btns { grid-column: 1 / 3; display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px; }
-        .modal-btn { padding: 10px 20px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; }
-        .btn-save-final { background: var(--success); color: white; }
-        .btn-cancel { background: #f5f5f5; color: #777; }
-
-        /* --- NOTIFICACIONES --- */
-        .toast { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; font-weight: 700; font-size: 0.8rem; transform: translateY(100px); transition: 0.3s; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; }
+        .modal-group { margin-bottom: 15px; }
+        .modal-group label { display: block; font-size: 0.75rem; font-weight: 700; color: #666; }
+        .modal-group input, .modal-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .toast { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; font-weight: 700; transform: translateY(100px); transition: 0.3s; z-index: 3000; }
         .toast.show { transform: translateY(0); }
-        .toast.success { background: var(--success); }
-        .toast.error { background: var(--danger); }
-        .toast.info { background: var(--primary); }
-
-        /* Botón de Guardado Definitivo */
-        #btn-exportar { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white; padding: 15px 25px; border-radius: 30px; font-weight: 700; display: none; z-index: 100; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
 
     <div id="portada">
-        <img src="logo.png" class="logo-portada" onerror="this.src='https://via.placeholder.com/120?text=Ahgusto'">
-        <h1>Bienvenido Joshua</h1>
-        <div class="info-portada">
-            Accede al sistema POS de Multimarket Ahgusto. Si eres cliente, usa el modo Comprador. Si eres administrador, usa el modo privado para gestionar tu inventario.
-        </div>
-        <div class="opciones-acceso">
-            <button class="btn-acceso cliente" onclick="activarPOS('cliente')">👤 Comprador</button>
-            <button class="btn-acceso admin" onclick="activarPOS('admin')">🔒 Administrador</button>
+        <img src="logo.png" class="logo-portada" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3081/3081840.png'">
+        <h1>Ahgusto Multimarket</h1>
+        <p>Control de Inventario en la Nube</p>
+        <div>
+            <button class="btn-acceso cliente" onclick="iniciarApp('cliente')">👤 Modo Comprador</button>
+            <button class="btn-acceso admin" onclick="iniciarApp('admin')">🔒 Modo Administrador</button>
         </div>
     </div>
 
     <div id="interfaz-pos">
         <nav>
-            <img src="logo.png" class="logo-sidebar" onerror="this.src='https://via.placeholder.com/60?text=Ahgusto'">
+            <img src="logo.png" style="width: 60px; display: block; margin: 0 auto 20px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3081/3081840.png'">
             <ul id="menu-categorias">
-                <li class="active" onclick="mostrarTodos()">Todas las categorías</li>
-                <li class="btn-admin-only" onclick="location.reload()">🔒 Panel de Control</li>
+                <li class="active" onclick="filtrar('Todas')">Todas las categorías</li>
             </ul>
         </nav>
 
         <div class="container">
             <div class="search-container">
-                <div style="flex-grow: 1;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                        <input type="text" id="barcode-input" placeholder="Escanea código o busca nombre..." autocomplete="off">
-                        <div id="status-modo" class="modos-container"></div>
-                    </div>
-                    <div class="status-msg">💡 Listo para escanear con la pistola o buscar manualmente...</div>
-                </div>
+                <input type="text" id="barcode-input" placeholder="Escanea código de barras o escribe..." autocomplete="off">
+                <div id="status-modo" class="modos-container"></div>
             </div>
-
-            <div id="contenedor-tienda">
-                </div>
+            <div id="contenedor-tienda"></div>
         </div>
     </div>
 
     <div id="modal-producto">
         <div class="modal-content">
-            <div style="grid-column: 1/3; display: flex; justify-content: space-between;">
-                <h2 id="modal-titulo" style="margin:0; font-size: 1.2rem;">Nuevo Producto</h2>
-                <strong id="modal-cod-display" style="color: var(--primary); font-family: monospace;">---</strong>
+            <h2 id="modal-titulo">Producto</h2>
+            <div class="modal-group"><label>CÓDIGO</label><div id="m-cod" style="font-weight:700; background:#eee; padding:10px;"></div></div>
+            <div class="modal-group"><label>NOMBRE</label><input type="text" id="m-nombre"></div>
+            <div class="modal-group"><label>PRECIO (S/)</label><input type="number" id="m-precio" step="0.01"></div>
+            <div class="modal-group"><label>STOCK</label><input type="number" id="m-stock"></div>
+            <div class="modal-group"><label>CATEGORÍA</label>
+                <select id="m-categoria">
+                    <option value="Abarrotes">Abarrotes</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Limpieza">Limpieza</option>
+                    <option value="General">General</option>
+                </select>
             </div>
-
-            <div>
-                <div class="modal-form-group">
-                    <label>Nombre del Producto</label>
-                    <input type="text" id="m-nombre" placeholder="Ej: Inca Kola Gaseosa Sabor Original 2L" required>
-                </div>
-                <div class="modal-form-group">
-                    <label>Categoría</label>
-                    <select id="m-categoria">
-                        <option value="Abarrotes">Abarrotes</option>
-                        <option value="Bebidas">Bebidas</option>
-                        <option value="Limpieza">Limpieza</option>
-                        <option value="General">General</option>
-                    </select>
-                </div>
-            </div>
-
-            <div>
-                <div class="modal-img-preview">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3081/3081840.png" class="preview-img" id="m-img-prev">
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="modal-form-group">
-                        <label>Precio Venta (S/)</label>
-                        <input type="number" id="m-precio" placeholder="0.00" step="0.01" required>
-                    </div>
-                    <div class="modal-form-group">
-                        <label>Stock Actual</label>
-                        <input type="number" id="m-stock" placeholder="0" required>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-btns">
-                <button class="modal-btn btn-cancel" onclick="cerrarModal()">Cancelar</button>
-                <button class="modal-btn btn-save-final" onclick="guardarProductoFinal()">Guardar Cambios</button>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button onclick="cerrarModal()" style="border:none; background:none; cursor:pointer;">Cancelar</button>
+                <button class="btn-acceso admin" onclick="guardarFirebase()">Guardar en Nube</button>
             </div>
         </div>
     </div>
 
     <div id="toast" class="toast"></div>
-    <div id="btn-exportar" onclick="exportarCambios()">💾 Guardar Todo Definitivo (Exportar JSON)</div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
 
     <script>
-        // Configuración y Variables
-        let inventarioBase = []; // Datos originales de GitHub
-        let inventarioModificado = []; // Datos con cambios en LocalStorage
-        let modoActual = 'cliente'; // 'cliente' o 'admin'
-        let productoEdicion = null; // Guardar ID del producto que se está editando
+        const firebaseConfig = {
+            apiKey: "AIzaSyDybKf865VmsfTbWjRRAWH74fgXXKmmOsY",
+            authDomain: "multimarket-ahgusto.firebaseapp.com",
+            databaseURL: "https://multimarket-ahgusto-default-rtdb.firebaseio.com",
+            projectId: "multimarket-ahgusto",
+            storageBucket: "multimarket-ahgusto.firebasestorage.app",
+            messagingSenderId: "261327080583",
+            appId: "1:261327080583:web:5a998fa8ed699d35e2fc22"
+        };
 
-        const iconoFallback = "https://cdn-icons-png.flaticon.com/512/3081/3081840.png";
-        const urlBusquedaImgBase = "https://world.openfoodfacts.org/images/products/"; // API OpenFoodFacts
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let productos = [];
+        let modo = 'cliente';
 
-        // Carga Inicial
-        async function cargarDatos() {
-            try {
-                // 1. Cargar datos base de GitHub
-                const res = await fetch('datosproductos.json');
-                if(!res.ok) throw new Error("Error al cargar JSON");
-                inventarioBase = await res.json();
-
-                // 2. Fusionar con LocalStorage si hay cambios
-                const localData = localStorage.getItem('ahgusto_inventario');
-                if(localData) {
-                    const cambiosLocales = JSON.parse(localData);
-                    fusionarInventarios(cambiosLocales);
-                } else {
-                    inventarioModificado = inventarioBase;
-                }
-
-                // Asegurar que 'id' único exista
-                verificarIDs();
-
-            } catch (e) { 
-                console.error(e);
-                showToast("Error crítico al cargar datos.", 'error');
-            }
+        function iniciarApp(m) {
+            modo = m;
+            document.getElementById('portada').style.display = 'none';
+            document.getElementById('interfaz-pos').style.display = 'flex';
+            const s = document.getElementById('status-modo');
+            s.textContent = modo === 'admin' ? "MODO ADMIN" : "MODO CLIENTE";
+            s.className = `modos-container ${modo === 'admin' ? 'modo-admin' : 'modo-cliente'}`;
+            escucharNube();
+            document.getElementById('barcode-input').focus();
         }
 
-        // --- SISTEMA DE ACTIVACIÓN (PORTADA) ---
-        function activarPOS(modo) {
-            modoActual = modo;
-            
-            // Ocultar portada con animación
-            document.getElementById('portada').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('portada').style.display = 'none';
-                document.getElementById('interfaz-pos').style.display = 'flex';
-                
-                configurarInterfazModo();
-                renderizarSecciones(inventarioModificado);
-                autoFocusScanner();
-            }, 500);
-        }
-
-        // Configura la interfaz según cliente/admin
-        function configurarInterfazModo() {
-            const statusModo = document.getElementById('status-modo');
-            const adminItems = document.querySelectorAll('.btn-admin-only');
-            
-            if(modoActual === 'admin') {
-                statusModo.textContent = "🔒 Modo Administrador (Edición)";
-                statusModo.className = "modos-container modo-admin";
-                adminItems.forEach(i => i.style.display = 'block');
-                document.getElementById('btn-exportar').style.display = 'block';
-            } else {
-                statusModo.textContent = "👤 Modo Comprador (Tienda)";
-                statusModo.className = "modos-container modo-cliente";
-                adminItems.forEach(i => i.style.display = 'none');
-                document.getElementById('btn-exportar').style.display = 'none';
-            }
-        }
-
-        // --- RENDERIZADO DE TIENDA Y ADMIN ---
-        function renderizarSecciones(datos) {
-            const tienda = document.getElementById('contenedor-tienda');
-            const menu = document.getElementById('menu-categorias');
-            tienda.innerHTML = "";
-            // Reset menú
-            menu.innerHTML = `<li class="active" onclick="mostrarTodos()">Todas las categorías</li>`;
-
-            const grupos = {};
-            datos.forEach(p => {
-                const c = p.Categoría || p.CATEGORIA || "Varios";
-                if (!grupos[c]) grupos[c] = [];
-                grupos[c].push(p);
+        function escucharNube() {
+            db.ref('inventario').on('value', (snap) => {
+                const data = snap.val();
+                productos = data ? Object.values(data) : [];
+                dibujarTienda(productos);
+                actualizarMenu();
             });
+        }
 
-            for (const cat in grupos) {
-                // Añadir al Menú
-                const li = document.createElement('li');
-                li.textContent = cat;
-                li.onclick = () => filtrarCategoria(cat);
-                menu.appendChild(li);
-
-                const seccion = document.createElement('div');
-                seccion.className = 'categoria-bloque';
-                seccion.id = `cat-${cat.replace(/\s/g, '')}`;
-                seccion.innerHTML = `<h2 class="categoria-titulo">${cat}</h2>`;
-                
+        function dibujarTienda(lista) {
+            const cont = document.getElementById('contenedor-tienda');
+            cont.innerHTML = "";
+            const cats = [...new Set(lista.map(p => p.CATEGORIA || 'General'))];
+            
+            cats.forEach(c => {
+                const sec = document.createElement('div');
+                sec.innerHTML = `<h2 style="border-bottom:2px solid var(--accent); margin-top:30px;">${c}</h2>`;
                 const grid = document.createElement('div');
                 grid.className = 'grid-productos';
-
-                grupos[cat].forEach(p => {
-                    grid.appendChild(crearTarjeta(p));
-                });
                 
-                seccion.appendChild(grid);
-                tienda.appendChild(seccion);
-            }
-
-            // Volver a añadir botón admin si está activo
-            if(modoActual === 'admin') {
-                const liAdmin = document.createElement('li');
-                liAdmin.className = 'btn-admin-only';
-                liAdmin.textContent = "🔒 Panel de Control";
-                liAdmin.onclick = () => location.reload();
-                menu.appendChild(liAdmin);
-            }
-        }
-
-        function crearTarjeta(p) {
-            const nombre = p.NOMBRE || p.Nombre || "Sin nombre";
-            const precio = parseFloat(p["P.Venta"] || p.P_Venta || 0).toFixed(2);
-            const stock = parseInt(p.Stock) || 0;
-            const cod = p.Código || p.CODIGO || "";
-            
-            // Imagen: Busca en OpenFoodFacts. Respaldo: Icono
-            let imgFinal = (cod.length > 5) ? `${urlBusquedaImgBase}${cod}/front_es.400.jpg` : iconoFallback;
-
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.id = `prod-${p.id}`; // ID único
-            card.dataset.codigo = cod;
-
-            // HTML común (Cliente)
-            let htmlCard = `
-                <div class="precio-tag">S/ ${precio}</div>
-                <div class="img-box">
-                    <img src="${iconoFallback}" class="icon-fallback">
-                    <img src="${imgFinal}" class="img-producto" onerror="handleErrorImage(this)">
-                </div>
-                <div class="stock-tag ${stock > 0 ? 'con-stock' : 'sin-stock'}">
-                    ${stock > 0 ? 'Stock: '+stock : 'Sin Stock'}
-                </div>
-                <h3>${nombre}</h3>
-                <button class="btn-pago">${modoActual === 'admin' ? 'EDITAR DETALLES' : 'AGREGAR'}</button>
-            `;
-
-            // Controles extra (Admin)
-            if(modoActual === 'admin') {
-                htmlCard += `
-                    <div class="admin-controls" id="admin-ctrl-${p.id}">
-                        <input type="number" class="admin-input" step="0.01" value="${precio}" placeholder="Precio Venta" id="p-new-${p.id}">
-                        <input type="number" class="admin-input" value="${stock}" placeholder="Stock" id="s-new-${p.id}">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
-                            <button class="btn-oferta ${p.Oferta ? 'activa' : ''}" onclick="toggleOferta('${p.id}')">Oferta?</button>
-                            <button class="btn-admin-save" onclick="guardarCambiosRapidos('${p.id}')">GUARDAR</button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            card.innerHTML = htmlCard;
-
-            // Evento de botón principal
-            card.querySelector('.btn-pago').addEventListener('click', () => {
-                if(modoActual === 'admin') {
-                    // En admin, abre el panel de edición rápido o completo
-                    abrirModalEdicion(p.id);
-                } else {
-                    // En cliente, agrega al carrito (futuro)
-                    showToast("Agregado al carrito.", 'info');
-                }
-            });
-
-            return card;
-        }
-
-        // --- SISTEMA DE ESCÁNER (BARCODE) ---
-        const inputBusqueda = document.getElementById('barcode-input');
-        
-        // Timer para el escáner (detectar fin de escritura)
-        let scannerTimer;
-        
-        inputBusqueda.addEventListener('input', (e) => {
-            const term = e.target.value.trim();
-            clearTimeout(scannerTimer);
-
-            if(term === "") {
-                mostrarTodosCards();
-                return;
-            }
-
-            // Retraso para el escáner (si escribe muy rápido y para, es escáner)
-            scannerTimer = setTimeout(() => {
-                const cards = document.querySelectorAll('.card');
-                let exactMatch = false;
-
-                cards.forEach(card => {
-                    const nombre = card.querySelector('h3').innerText.toLowerCase();
-                    const codigo = card.dataset.codigo.toString();
-                    
-                    // Búsqueda Inteligente:
-                    if (codigo === term) {
-                        // Coincidencia exacta (Escáner)
-                        exactMatch = true;
-                        resaltarProducto(card);
-                    } else if (nombre.includes(term.toLowerCase())) {
-                        // Coincidencia de nombre (Manual)
-                        card.style.display = "flex";
-                    } else {
-                        card.style.display = "none";
-                    }
+                lista.filter(p => (p.CATEGORIA || 'General') === c).forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.id = `card-${p.Código}`;
+                    card.innerHTML = `
+                        <div class="precio-tag">S/ ${parseFloat(p.P_Venta).toFixed(2)}</div>
+                        <div class="img-box"><img src="https://world.openfoodfacts.org/images/products/${p.Código}/front_es.200.jpg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3081/3081840.png'" class="img-producto"></div>
+                        <div class="stock-tag ${p.Stock > 0 ? 'con-stock' : 'sin-stock'}">Stock: ${p.Stock}</div>
+                        <h3>${p.Nombre}</h3>
+                        <button class="btn-accion" onclick="accion('${p.Código}')">${modo === 'admin' ? 'EDITAR' : 'AGREGAR'}</button>
+                    `;
+                    grid.appendChild(card);
                 });
+                sec.appendChild(grid);
+                cont.appendChild(sec);
+            });
+        }
 
-                // --- LÓGICA DE AÑADIR NUEVO (SÓLO ADMIN) ---
-                if(!exactMatch && modoActual === 'admin' && /^\d+$/.test(term) && term.length >= 8) {
-                    // Es un código numérico largo (EAN13 o EAN8) y no está registrado
-                    showToast("Código no registrado. Abriendo formulario de alta.", 'info');
-                    abrirModalNuevo(term);
-                }
+        function accion(cod) {
+            if (modo === 'admin') {
+                const p = productos.find(x => x.Código == cod);
+                document.getElementById('modal-titulo').textContent = "Editar Producto";
+                document.getElementById('m-cod').textContent = cod;
+                document.getElementById('m-nombre').value = p.Nombre;
+                document.getElementById('m-precio').value = p.P_Venta;
+                document.getElementById('m-stock').value = p.Stock;
+                document.getElementById('m-categoria').value = p.CATEGORIA;
+                document.getElementById('modal-producto').style.display = 'flex';
+            } else {
+                msg("Producto seleccionado", "var(--primary)");
+            }
+        }
 
-                if(term !== "" && exactMatch) {
-                    // Limpiar input si fue coincidencia exacta
-                    setTimeout(() => { inputBusqueda.value = ''; }, 200);
-                }
+        function guardarFirebase() {
+            const cod = document.getElementById('m-cod').textContent;
+            const data = {
+                Nombre: document.getElementById('m-nombre').value,
+                P_Venta: document.getElementById('m-precio').value,
+                Stock: document.getElementById('m-stock').value,
+                CATEGORIA: document.getElementById('m-categoria').value,
+                Código: cod
+            };
+            db.ref('inventario/' + cod).set(data).then(() => {
+                msg("✅ Nube actualizada", "var(--success)");
+                cerrarModal();
+            });
+        }
 
-            }, 50); // Tiempo de respuesta muy rápido
+        document.getElementById('barcode-input').addEventListener('input', (e) => {
+            const val = e.target.value;
+            const p = productos.find(x => x.Código == val);
+            if (p) {
+                const card = document.getElementById(`card-${val}`);
+                card.scrollIntoView({behavior: 'smooth', block: 'center'});
+                card.style.borderColor = 'var(--accent)';
+                setTimeout(() => card.style.borderColor = 'transparent', 2000);
+                e.target.value = "";
+            } else if (modo === 'admin' && val.length >= 8) {
+                document.getElementById('modal-titulo').textContent = "Nuevo Producto";
+                document.getElementById('m-cod').textContent = val;
+                document.getElementById('m-nombre').value = "";
+                document.getElementById('modal-producto').style.display = 'flex';
+            }
         });
 
-        // Asegurar que el foco esté en el input siempre
-        function autoFocusScanner() {
-            document.addEventListener('keydown', (e) => {
-                const isInput = document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT';
-                const isModalOpen = document.getElementById('modal-producto').style.display === 'flex';
-                
-                if (!isInput && !isModalOpen && modoActual !== 'none') {
-                    inputBusqueda.focus();
-                }
-            });
-        }
-
-        // --- GESTIÓN DE MODAL (NUEVO/EDITAR) ---
-        function abrirModalNuevo(codigo) {
-            productoEdicion = null; // Indicamos nuevo
-            document.getElementById('modal-titulo').textContent = "Alta de Nuevo Producto";
-            document.getElementById('modal-cod-display').textContent = codigo;
-            document.getElementById('m-nombre').value = "";
-            document.getElementById('m-m-m-categoria').value = "Abarrotes";
-            document.getElementById('m-precio').value = "";
-            document.getElementById('m-stock').value = "";
-            
-            // Buscar imagen automáticamente
-            const imgUrl = `${urlBusquedaImgBase}${codigo}/front_es.400.jpg`;
-            document.getElementById('m-img-prev').src = imgUrl;
-
-            document.getElementById('modal-producto').style.display = 'flex';
-        }
-
-        function abrirModalEdicion(id) {
-            const p = inventarioModificado.find(prod => prod.id == id);
-            if(!p) return;
-
-            productoEdicion = id;
-            document.getElementById('modal-titulo').textContent = "Editar Producto";
-            document.getElementById('modal-cod-display').textContent = p.Código || p.CODIGO || '---';
-            document.getElementById('m-nombre').value = p.NOMBRE || p.Nombre || "";
-            document.getElementById('m-categoria').value = p.Categoría || p.CATEGORIA || "General";
-            document.getElementById('m-precio').value = p["P.Venta"] || p.P_Venta || 0;
-            document.getElementById('m-stock').value = p.Stock || 0;
-
-            // Imagen (misma lógica)
-            let imgFinal = (p.Código || p.CODIGO || "").length > 5 ? `${urlBusquedaImgBase}${p.Código || p.CODIGO}/front_es.400.jpg` : iconoFallback;
-            document.getElementById('m-img-prev').src = imgFinal;
-
-            document.getElementById('modal-producto').style.display = 'flex';
-        }
-
-        function cerrarModal() {
-            document.getElementById('modal-producto').style.display = 'none';
-        }
-
-        function guardarProductoFinal() {
-            const nombre = document.getElementById('m-nombre').value.trim();
-            const precio = parseFloat(document.getElementById('m-precio').value) || 0;
-            const stock = parseInt(document.getElementById('m-stock').value) || 0;
-            const cod = document.getElementById('modal-cod-display').textContent;
-            const categoria = document.getElementById('m-categoria').value;
-
-            if(!nombre || precio <= 0) {
-                showToast("Faltan datos obligatorios.", 'error');
-                return;
-            }
-
-            if(productoEdicion) {
-                // EDITAR EXISTENTE
-                const index = inventarioModificado.findIndex(p => p.id == productoEdicion);
-                inventarioModificado[index].NOMBRE = nombre;
-                inventarioModificado[index].Nombre = nombre; // Duplicamos para asegurar
-                inventarioModificado[index]["P.Venta"] = precio;
-                inventarioModificado[index].P_Venta = precio;
-                inventarioModificado[index].Stock = stock;
-                inventarioModificado[index].Categoría = categoria;
-                inventarioModificado[index].CATEGORIA = categoria;
-                
-                showToast("Producto actualizado en el inventario local.", 'success');
-            } else {
-                // AÑADIR NUEVO
-                const nuevo = {
-                    id: Date.now(), // ID temporal único
-                    id_producto: Date.now(), // Para compatibilidad
-                    NOMBRE: nombre, Nombre: nombre,
-                    "P.Venta": precio, P_Venta: precio,
-                    Stock: stock,
-                    Categoría: categoria, CATEGORIA: categoria,
-                    Código: cod, CODIGO: cod,
-                    Oferta: false
-                };
-                inventarioModificado.unshift(nuevo); // Al principio
-                showToast("Nuevo producto añadido localmente.", 'success');
-            }
-
-            // Guardar en LocalStorage y renderizar
-            actualizarLocalStorage();
-            renderizarSecciones(inventarioModificado);
-            cerrarModal();
-        }
-
-        // --- SISTEMA DE PERSISTENCIA Y EXPORTACIÓN ---
-        function actualizarLocalStorage() {
-            localStorage.setItem('ahgusto_inventario', JSON.stringify(inventarioModificado));
-        }
-
-        function exportarCambios() {
-            // Generar el JSON final a partir de los datos modificados
-            // Solo exportamos los campos estándar
-            const jsonFinal = inventarioModificado.map(p => ({
-                id_producto: p.id_producto || p.id,
-                Código: p.Código || p.CODIGO,
-                Nombre: p.Nombre || p.NOMBRE,
-                CATEGORIA: p.CATEGORIA || p.Categoría,
-                P_Venta: p["P.Venta"] || p.P_Venta,
-                Stock: p.Stock
-            }));
-
-            const dataStr = JSON.stringify(jsonFinal, null, 4);
-            
-            // Crear Blob y descargar
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `datosproductos_ahgusto_actualizado.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            showToast("JSON generado. Actualiza este archivo en GitHub.", 'success');
-        }
-
-        // --- UTILIDADES ---
-        function verificarIDs() {
-            inventarioBase.forEach((p, i) => {
-                if(!p.id) {
-                    p.id = p.id_producto || `github-${i}`;
-                }
-            });
-        }
-
-        function fusionarInventarios(cambios) {
-            // Creamos un mapa de los cambios para acceso rápido
-            const mapaCambios = new Map(cambios.map(p => [p.id, p]));
-            
-            inventarioModificado = inventarioBase.map(p => {
-                if(mapaCambios.has(p.id)) {
-                    return mapaCambios.get(p.id); // Usamos la versión cambiada
-                }
-                return p;
-            });
-
-            // Añadir nuevos productos que no están en la base
-            const idsBase = new Set(inventarioBase.map(p => p.id));
-            const nuevos = cambios.filter(p => !idsBase.has(p.id));
-            inventarioModificado = [...nuevos, ...inventarioModificado];
-        }
-
-        function handleErrorImage(img) {
-            img.style.display = 'none'; // Oculta si falla OFF
-            // El iconoFallback del img-wrapper se mostrará
-        }
-
-        function showToast(msj, tipo) {
+        function cerrarModal() { document.getElementById('modal-producto').style.display = 'none'; }
+        
+        function msg(m, c) {
             const t = document.getElementById('toast');
-            t.textContent = msj;
-            t.className = `toast ${tipo} show`;
-            setTimeout(() => { t.className = `toast ${tipo}`; }, 2500);
+            t.textContent = m;
+            t.style.background = c;
+            t.className = "toast show";
+            setTimeout(() => t.className = "toast", 2000);
         }
 
-        // Navegación
-        function mostrarTodos() {
-            document.querySelectorAll('.categoria-bloque').forEach(b => b.style.display = 'block');
-            marcarMenuActivo(0);
-        }
-
-        function filtrarCategoria(cat) {
-            document.querySelectorAll('.categoria-bloque').forEach(b => b.style.display = 'none');
-            const target = document.getElementById(`cat-${cat.replace(/\s/g, '')}`);
-            if(target) target.style.display = 'block';
-            window.scrollTo(0,0);
-        }
-
-        function marcarMenuActivo(index) {
-            const items = document.querySelectorAll('nav ul li');
-            items.forEach(i => i.classList.remove('active'));
-            if(items[index]) items[index].classList.add('active');
-        }
-
-        function mostrarTodosCards() {
-            document.querySelectorAll('.card').forEach(c => {
-                c.style.display = "flex";
-                c.style.borderColor = "transparent";
-                c.style.backgroundColor = "white";
+        function actualizarMenu() {
+            const menu = document.getElementById('menu-categorias');
+            const cats = [...new Set(productos.map(p => p.CATEGORIA || 'General'))];
+            menu.innerHTML = `<li class="active" onclick="dibujarTienda(productos)">Todas las categorías</li>`;
+            cats.forEach(c => {
+                const li = document.createElement('li');
+                li.textContent = c;
+                li.onclick = () => dibujarTienda(productos.filter(p => p.CATEGORIA === c));
+                menu.appendChild(li);
             });
-            mostrarTodos();
         }
-
-        function resaltarProducto(card) {
-            document.querySelectorAll('.card').forEach(c => {
-                if(c !== card) c.style.display = "none";
-            });
-            card.style.display = "flex";
-            card.style.borderColor = "var(--accent)";
-            card.style.backgroundColor = "#fff8ef";
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        cargarDatos();
     </script>
 </body>
 </html>
