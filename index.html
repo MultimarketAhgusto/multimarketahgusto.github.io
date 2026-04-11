@@ -6,138 +6,130 @@
     <title>Multimarket Ahgusto</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --sidebar-width: 250px; }
+        :root { --sidebar-width: 260px; }
         body { font-family: 'Poppins', sans-serif; margin: 0; display: flex; background-color: #fdfaf5; color: #333; }
 
         /* Barra Lateral */
         nav { width: var(--sidebar-width); height: 100vh; background: white; border-right: 1px solid #eee; position: fixed; padding: 20px 0; z-index: 10; }
-        .logo-nav { width: 80px; margin: 0 auto 30px; display: block; }
+        .logo-nav { width: 40px; margin: 0 auto 20px; display: block; }
         nav ul { list-style: none; padding: 0; margin: 0; }
-        nav ul li { padding: 15px 30px; font-size: 0.9rem; font-weight: 600; color: #333; text-transform: uppercase; cursor: pointer; }
-        nav ul li.active { background: #f9f1e4; border-right: 4px solid #d4a373; }
+        nav ul li { padding: 15px 30px; font-size: 0.85rem; font-weight: 600; color: #333; text-transform: uppercase; cursor: pointer; border-left: 4px solid transparent; }
+        nav ul li:hover, nav ul li.active { background: #fff8ef; border-left: 4px solid #d4a373; color: #d4a373; }
 
         /* Contenido Principal */
-        .container { margin-left: var(--sidebar-width); width: 100%; padding: 40px; }
+        .container { margin-left: var(--sidebar-width); width: 100%; padding: 40px; box-sizing: border-box; }
 
-        /* Banner de Rayas y Logo Ah Gusto */
+        /* Banner Superior de Rayas */
         .hero-banner { 
             background: repeating-linear-gradient(90deg, #00468b, #00468b 20px, #ffffff 20px, #ffffff 40px); 
-            padding: 40px; display: flex; justify-content: center; margin-bottom: 40px; 
+            height: 200px; display: flex; justify-content: center; align-items: center; margin-bottom: 50px; border-radius: 4px;
         }
-        .logo-circulo { 
-            background: #f1c40f; padding: 20px; border-radius: 50%; border: 4px solid #d35400; 
-            text-align: center; width: 180px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+        .logo-principal { background: #f1c40f; padding: 25px; border-radius: 50%; border: 4px solid #d35400; width: 180px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Títulos de Sección (Agrupación) */
+        .categoria-bloque { margin-bottom: 50px; }
+        .categoria-titulo { font-size: 1.2rem; font-weight: 700; text-transform: uppercase; margin-bottom: 25px; color: #111; border-left: 5px solid #00468b; padding-left: 15px; }
+
+        /* Grid de Tarjetas Estilo "Ver Más" */
+        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+
+        .card { 
+            background: white; border-radius: 20px; padding: 30px 20px; text-align: center; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; flex-direction: column; align-items: center; 
+            transition: transform 0.3s;
         }
+        .card:hover { transform: translateY(-5px); }
 
-        /* Buscador */
-        .search-box { width: 100%; max-width: 600px; padding: 15px; margin: 0 auto 40px; display: block; border-radius: 10px; border: 1px solid #ddd; }
+        /* Icono Genérico según Categoría (Igual a tu imagen) */
+        .card-icon { width: 60px; height: 60px; margin-bottom: 15px; background-size: contain; background-repeat: no-repeat; background-position: center; }
 
-        /* Estilo de Secciones por Categoría */
-        .categoria-titulo { 
-            background: #00468b; color: white; padding: 10px 20px; border-radius: 8px; 
-            margin: 40px 0 20px; text-transform: uppercase; letter-spacing: 1px;
+        .card h3 { font-size: 0.95rem; font-weight: 700; margin: 10px 0; color: #111; text-transform: uppercase; min-height: 40px; }
+        .card p { font-size: 0.8rem; color: #777; margin-bottom: 15px; }
+        .card .precio { font-size: 1.2rem; font-weight: 700; color: #000; margin-bottom: 20px; }
+
+        .btn-ver-mas { 
+            background: #a8dadc; color: #1d3557; border: none; padding: 8px 20px; 
+            border-radius: 20px; font-weight: 700; font-size: 0.75rem; cursor: pointer; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
-        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
-
-        .card { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .card h3 { font-size: 1rem; height: 45px; overflow: hidden; margin: 10px 0; }
-        .card .precio { font-size: 1.3rem; font-weight: 700; color: #27ae60; margin-bottom: 15px; }
-        .btn-ver { background: #a8dadc; color: #1d3557; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <nav>
-        <img src="logo.png" class="logo-nav" onerror="this.src='https://via.placeholder.com/80?text=AhGusto'">
+        <img src="logo.png" class="logo-nav" onerror="this.style.display='none'">
         <ul>
             <li class="active">Inicio</li>
             <li>Productos</li>
             <li>Ofertas</li>
+            <li>Sobre Nosotros</li>
             <li>Contacto</li>
         </ul>
     </nav>
 
     <div class="container">
         <div class="hero-banner">
-            <div class="logo-circulo">
-                <h2 style="margin:0; color:#d35400; font-size: 1.2rem;">Ah Gusto</h2>
-                <small style="color:#333; font-weight:bold;">MULTIMARKET</small>
+            <div class="logo-principal">
+                <h2 style="margin:0; color:#d35400; font-size: 1rem;">Ah Gusto</h2>
+                <small style="font-weight:700;">MULTIMARKET</small>
             </div>
         </div>
 
-        <input type="text" id="buscador" class="search-box" placeholder="¿Qué buscas en Ahgusto hoy?">
-
-        <div id="secciones-productos">
+        <div id="contenedor-categorias">
             </div>
     </div>
 
     <script>
-        let inventario = [];
-
-        async function cargar() {
+        async function cargarTienda() {
             try {
-                const res = await fetch('datosproductos.json');
-                inventario = await res.json();
-                render(inventario);
-            } catch (e) { console.error("Error cargando datos", e); }
-        }
-
-        function render(datos) {
-            const mainContainer = document.getElementById('secciones-productos');
-            mainContainer.innerHTML = '';
-
-            // 1. Agrupar productos por la columna "Categoría" que viene de tu Excel
-            const categorias = {};
-            datos.forEach(p => {
-                const catNombre = p.Categoría || p.CATEGORIA || p.categoria || "Otros";
-                if (!categorias[catNombre]) categorias[catNombre] = [];
-                categorias[catNombre].push(p);
-            });
-
-            // 2. Crear una sección visual por cada categoría encontrada
-            for (const cat in categorias) {
-                const seccion = document.createElement('div');
-                seccion.innerHTML = `<h2 class="categoria-titulo">${cat}</h2>`;
+                const respuesta = await fetch('datosproductos.json');
+                const productos = await respuesta.json();
                 
-                const grid = document.createElement('div');
-                grid.className = 'grid-productos';
-
-                categorias[cat].forEach(p => {
-                    // CORRECCIÓN PRECIO: Busca exactamente "P.Venta" como en tu imagen de Excel
-                    const nombre = p.NOMBRE || p.Nombre || "Producto";
-                    const precioStr = p["P.Venta"] || p.P_Venta || p.PVenta || p.precio || "0";
-                    
-                    // Limpiar el precio por si tiene "S/" o espacios
-                    const precioLimpio = precioStr.toString().replace('S/', '').replace(',', '').trim();
-                    const precioFinal = parseFloat(precioLimpio) || 0;
-
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <small style="color:#aaa">COD: ${p.Código || p.CODIGO || '---'}</small>
-                        <h3>${nombre}</h3>
-                        <div class="precio">S/ ${precioFinal.toFixed(2)}</div>
-                        <button class="btn-ver">VER MÁS</button>
-                    `;
-                    grid.appendChild(card);
+                // 1. Agrupar por Categoría
+                const grupos = {};
+                productos.forEach(p => {
+                    const cat = p.Categoría || p.CATEGORIA || "VARIOS";
+                    if (!grupos[cat]) grupos[cat] = [];
+                    grupos[cat].push(p);
                 });
 
-                seccion.appendChild(grid);
-                mainContainer.appendChild(seccion);
-            }
+                const mainContainer = document.getElementById('contenedor-categorias');
+                mainContainer.innerHTML = '';
+
+                // 2. Crear las secciones tipo bloque
+                for (const nombreCat in grupos) {
+                    const seccion = document.createElement('div');
+                    seccion.className = 'categoria-bloque';
+                    
+                    seccion.innerHTML = `<h2 class="categoria-titulo">${nombreCat}</h2>`;
+                    
+                    const grid = document.createElement('div');
+                    grid.className = 'grid-productos';
+
+                    grupos[nombreCat].forEach(p => {
+                        // Limpieza de precio para evitar el 0.00
+                        const rawPrecio = p["P.Venta"] || p.P_Venta || p.PVenta || p.precio || "0";
+                        const precioLimpio = parseFloat(rawPrecio.toString().replace('S/', '').replace(',', '').trim()) || 0;
+
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <div class="card-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/3081/3081840.png')"></div>
+                            <h3>${p.NOMBRE || p.Nombre || "Producto"}</h3>
+                            <p>Calidad garantizada para tu hogar y familia.</p>
+                            <div class="precio">S/ ${precioLimpio.toFixed(2)}</div>
+                            <button class="btn-ver-mas">VER MÁS</button>
+                        `;
+                        grid.appendChild(card);
+                    });
+
+                    seccion.appendChild(grid);
+                    mainContainer.appendChild(seccion);
+                }
+            } catch (err) { console.error("Error cargando JSON", err); }
         }
 
-        // Buscador
-        document.getElementById('buscador').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtrados = inventario.filter(p => 
-                (p.NOMBRE || p.nombre || "").toLowerCase().includes(term)
-            );
-            render(filtrados);
-        });
-
-        cargar();
+        cargarTienda();
     </script>
 </body>
 </html>
