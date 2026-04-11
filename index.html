@@ -19,29 +19,23 @@
         /* Contenido Principal */
         .container { margin-left: var(--sidebar-width); width: 100%; padding: 40px; box-sizing: border-box; }
 
-        /* Banner Superior */
         .hero-banner { 
             background: repeating-linear-gradient(90deg, #00468b, #00468b 20px, #ffffff 20px, #ffffff 40px); 
             height: 180px; display: flex; justify-content: center; align-items: center; margin-bottom: 50px; border-radius: 4px;
         }
         .logo-principal { background: #f1c40f; padding: 20px; border-radius: 50%; border: 4px solid #d35400; width: 150px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-        /* Secciones por Categoría - Ocultas al inicio */
         .categoria-bloque { display: none; margin-bottom: 60px; }
         .categoria-titulo { font-size: 1.2rem; font-weight: 700; text-transform: uppercase; margin-bottom: 25px; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px; }
 
-        /* Grid de Tarjetas */
         .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; }
+        .card { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; min-height: 380px; }
         
         .precio-tag { background: #1a3c5a; color: white; padding: 4px 12px; border-radius: 5px; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; }
         
-        /* Imagen del Producto Automática */
-        .img-producto { 
-            width: 130px; height: 130px; margin: 10px 0; 
-            object-fit: contain; border-radius: 10px;
-            background: #f9f9f9; 
-        }
+        /* Contenedor de imagen para evitar que la tarjeta salte */
+        .img-wrapper { width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; margin: 10px 0; background: #f9f9f9; border-radius: 10px; overflow: hidden; }
+        .img-producto { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s; }
 
         .stock-tag { padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; margin-bottom: 10px; width: 80%; }
         .con-stock { background: #ffede0; color: #e67e22; }
@@ -50,7 +44,6 @@
         .card h3 { font-size: 0.8rem; font-weight: 600; margin: 10px 0; color: #444; min-height: 40px; line-height: 1.2; text-transform: capitalize; }
         .btn-pago { background: #a8dadc; color: #1d3557; border: none; padding: 8px 15px; border-radius: 5px; font-weight: 700; font-size: 0.7rem; cursor: pointer; width: 100%; margin-top: auto; }
         
-        /* Mensaje de Bienvenida */
         #bienvenida { text-align: center; padding: 50px; }
     </style>
 </head>
@@ -73,7 +66,7 @@
 
         <div id="bienvenida">
             <h2>Bienvenido a Multimarket Ahgusto</h2>
-            <p>Selecciona una categoría a la izquierda para ver nuestros productos con fotos reales.</p>
+            <p>Selecciona una categoría para ver los productos.</p>
         </div>
 
         <div id="contenedor-tienda"></div>
@@ -98,13 +91,11 @@
                 const menu = document.getElementById('menu-categorias');
 
                 for (const cat in grupos) {
-                    // Botón en el menú lateral
                     const li = document.createElement('li');
                     li.textContent = cat;
                     li.onclick = () => filtrarPorCategoria(cat, li);
                     menu.appendChild(li);
 
-                    // Bloque de categoría (oculto por defecto)
                     const seccion = document.createElement('div');
                     seccion.className = 'categoria-bloque';
                     seccion.id = `seccion-${cat}`;
@@ -117,8 +108,6 @@
                         const stock = parseInt(p.Stock) || 0;
                         const stockClase = stock > 0 ? 'con-stock' : 'sin-stock';
                         const nombreProd = p.NOMBRE || p.Nombre || "Producto";
-                        
-                        // LÓGICA DE PRECIO (Corregido P.Venta)
                         const precioRaw = p["P.Venta"] || p.P_Venta || p.precio || "0.00";
                         const precioFormateado = precioRaw.toString().includes('S/') ? precioRaw : `S/ ${precioRaw}`;
 
@@ -126,10 +115,13 @@
                         card.className = 'card';
                         card.innerHTML = `
                             <div class="precio-tag">${precioFormateado}</div>
-                            <img class="img-producto" 
-                                 src="https://loremflickr.com/320/320/${encodeURIComponent(nombreProd)}" 
-                                 alt="${nombreProd}"
-                                 onerror="this.src='https://via.placeholder.com/150?text=Sin+Foto'">
+                            <div class="img-wrapper">
+                                <img class="img-producto" 
+                                     data-src="https://loremflickr.com/320/320/${encodeURIComponent(nombreProd + ' product')}" 
+                                     src="https://via.placeholder.com/150?text=Cargando..."
+                                     alt="${nombreProd}"
+                                     onerror="this.src='https://via.placeholder.com/150?text=Sin+Foto'">
+                            </div>
                             <div class="stock-tag ${stockClase}">${stock > 0 ? 'Stock: '+stock : 'Sin stock'}</div>
                             <h3>${nombreProd}</h3>
                             <button class="btn-pago">AGREGAR</button>
@@ -148,7 +140,16 @@
             document.querySelectorAll('nav ul li').forEach(i => i.classList.remove('active'));
 
             const seccion = document.getElementById(`seccion-${categoriaSeleccionada}`);
-            if(seccion) seccion.style.display = 'block';
+            if(seccion) {
+                seccion.style.display = 'block';
+                // Al mostrar la sección, cargamos sus imágenes reales
+                seccion.querySelectorAll('.img-producto').forEach(img => {
+                    if(img.getAttribute('data-src')) {
+                        img.src = img.getAttribute('data-src');
+                        img.removeAttribute('data-src');
+                    }
+                });
+            }
             
             elementoMenu.classList.add('active');
             window.scrollTo(0,0);
