@@ -62,31 +62,43 @@
         const db = firebase.database();
         let productos = [];
 
-        // CARGA MASIVA OPTIMIZADA
-        db.ref('/').on('value', (snapshot) => {
-            const rawData = snapshot.val();
-            if (rawData) {
-                // Convertimos a array asegurando que NO se pierdan datos por estructura
-                productos = Object.keys(rawData).map(key => rawData[key]).filter(p => {
-                    return p && (p.Nombre || p.Código || p.Codigo);
-                });
+        // Conexión a la carpeta 'productos'
+        // BUSCADOR DE PRODUCTOS EN TODA LA BASE DE DATOS
+db.ref('/').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        let listaTemporal = [];
 
-                const statusDiv = document.getElementById('status-db');
-                statusDiv.innerText = "✅ " + productos.length + " PRODUCTOS CARGADOS";
-                statusDiv.className = "status ready";
-                
-                render(productos);
+        // Función que busca productos aunque estén en carpetas diferentes
+        const extraerProductos = (objeto) => {
+            if (objeto.nombre || objeto.Nombre) {
+                listaTemporal.push(objeto);
+            } else {
+                for (let llave in objeto) {
+                    if (typeof objeto[llave] === 'object') {
+                        extraerProductos(objeto[llave]);
+                    }
+                }
             }
-        });
+        };
 
-        // BUSCADOR INSTANTÁNEO
+        extraerProductos(data);
+        productos = listaTemporal;
+
+        const statusDiv = document.getElementById('status-db');
+        statusDiv.innerText = "✅ " + productos.length + " PRODUCTOS LISTOS";
+        statusDiv.className = "status ready";
+        render(productos);
+    }
+});
+        // Buscador
         document.getElementById('barcode-input').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase().trim();
             if (term === "") { render(productos); return; }
 
             const filtered = productos.filter(p => {
-                const n = String(p.Nombre || "").toLowerCase();
-                const c = String(p.Código || p.Codigo || "");
+                const n = String(p.nombre || p.Nombre || "").toLowerCase();
+                const c = String(p.codigo || p.Codigo || p.Código || "");
                 return n.includes(term) || c.includes(term);
             });
             render(filtered);
@@ -96,21 +108,22 @@
             const container = document.getElementById('tienda');
             container.innerHTML = "";
             
-            // Limitamos el render inicial a 200 para que no se pegue la página, 
-            // pero el buscador encontrará cualquiera de los 1057.
             const totalAMostrar = lista.length;
-            const items = lista.slice(0, 500); // Mostramos los primeros 500 por fluidez
+            const items = lista.slice(0, 500); // Para que la web sea rápida
 
             items.forEach(p => {
-                const cod = p.Código || p.Codigo;
+                const cod = p.codigo || p.Codigo || p.Código;
+                const nom = p.nombre || p.Nombre || 'Sin nombre';
+                const precio = p.precio_venta || p.P_Venta || 0;
+
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
-                    <div class="price">S/ ${parseFloat(p.P_Venta || 0).toFixed(2)}</div>
+                    <div class="price">S/ ${parseFloat(precio).toFixed(2)}</div>
                     <img src="https://world.openfoodfacts.org/images/products/${cod}/front_es.200.jpg" 
                          onerror="this.src='https://cdn-icons-png.flaticon.com/512/3081/3081840.png'" 
                          class="img-prod">
-                    <h3>${p.Nombre || 'Sin nombre'}</h3>
+                    <h3>${nom}</h3>
                     <div class="code">${cod}</div>
                 `;
                 container.appendChild(card);
@@ -118,8 +131,8 @@
 
             if (totalAMostrar > 500) {
                 const aviso = document.createElement('p');
-                aviso.style = "grid-column: 1/-1; text-align: center; color: #888; font-size: 0.8rem;";
-                aviso.innerText = "Mostrando 500 de " + totalAMostrar + " productos. Usa el buscador para encontrar el resto.";
+                aviso.style = "grid-column: 1/-1; text-align: center; color: #888; font-size: 0.8rem; padding: 20px;";
+                aviso.innerText = "Mostrando 500 de " + totalAMostrar + " productos. El buscador encontrará el resto.";
                 container.appendChild(aviso);
             }
         }
